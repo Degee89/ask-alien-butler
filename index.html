@@ -1,0 +1,168 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Ask Alien Butler</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Audiowide&family=Atkinson+Hyperlegible:wght@400;700&display=swap">
+<style>
+/* Layout: a 1998 sci-fi portal homepage. Starfield header band, one search console, answer transmission panel, "other earthlings asked" sidebar that stacks on phones. Single dark look by choice. */
+:root{
+  --bg:#07090f; --panel:#111827; --ink:#e6f2ea; --muted:#8fa69a;
+  --band:#0b1020; --glow:#7cff6b; --accent:#b38cff; --link:#8fd3ff; --bevel:#2a3a4a;
+  --display:"Audiowide","Trebuchet MS",sans-serif;
+  --body:"Atkinson Hyperlegible",Verdana,Tahoma,sans-serif;
+  color-scheme:dark;
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--body);font-size:16px;line-height:1.55;
+  background-image:radial-gradient(1px 1px at 12% 20%,#fff8 50%,transparent),radial-gradient(1px 1px at 70% 60%,#fff6 50%,transparent),radial-gradient(1.5px 1.5px at 40% 85%,#fff7 50%,transparent),radial-gradient(1px 1px at 88% 15%,#fff8 50%,transparent);background-size:220px 220px}
+body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);z-index:10;background:var(--band)}
+.wrap{max-width:980px;margin:0 auto;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+header{background:var(--band);border-bottom:2px solid var(--glow);box-shadow:0 0 18px #7cff6b33}
+header .wrap{display:flex;align-items:center;gap:16px;padding-block:18px;flex-wrap:wrap}
+.logo{display:flex;align-items:center;gap:12px}
+.logo h1{font-family:var(--display);font-weight:400;font-size:clamp(24px,6vw,38px);margin:0;color:var(--glow);text-shadow:0 0 10px #7cff6b88}
+.logo h1 span{color:var(--accent);text-shadow:0 0 10px #b38cff88}
+.tag{font-size:13px;color:var(--muted);margin-left:auto}
+nav.tabs{display:flex;gap:4px;flex-wrap:wrap;margin-top:-1px}
+nav.tabs span{font-size:13px;padding:4px 12px;background:var(--panel);border:1px solid var(--bevel);border-bottom:none;border-radius:6px 6px 0 0;color:var(--muted)}
+nav.tabs span.on{color:var(--glow);font-weight:700}
+main .wrap{display:grid;grid-template-columns:minmax(0,1fr) 260px;gap:20px;padding-block:20px 40px}
+@media (max-width:760px){main .wrap{grid-template-columns:minmax(0,1fr)}}
+.card{background:var(--panel);border:2px solid var(--bevel);border-radius:4px;padding:18px;box-shadow:inset 1px 1px 0 #ffffff14}
+.askbox label{display:block;font-family:var(--display);font-size:18px;margin-bottom:8px;color:var(--ink)}
+.row{display:flex;gap:8px;flex-wrap:wrap}
+#q{flex:1 1 240px;min-width:0;font:inherit;padding:10px 12px;border:2px inset var(--bevel);background:#04060a;color:var(--glow);border-radius:2px;font-family:"Courier New",monospace}
+#q::placeholder{color:#4f7a52}
+#q:focus{outline:3px solid var(--accent);outline-offset:1px}
+button{font:inherit;cursor:pointer}
+#go{font-family:var(--display);padding:10px 22px;background:var(--glow);color:#05200a;border:2px outset #b8ffae;border-radius:3px}
+#go:active{border-style:inset}
+#go:disabled{opacity:.6;cursor:wait}
+#go:focus-visible,.chip:focus-visible,.rel button:focus-visible{outline:3px solid var(--link);outline-offset:2px}
+.chips{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px;font-size:14px;color:var(--muted);align-items:center}
+.chip{background:none;border:1px dashed var(--bevel);border-radius:999px;padding:3px 10px;color:var(--link)}
+.answer{margin-top:20px}
+.answer .qline{font-size:12px;text-transform:uppercase;letter-spacing:.12em;color:var(--accent);margin:0 0 4px}
+.answer h2{font-family:var(--display);font-weight:400;font-size:20px;margin:0 0 12px;text-wrap:balance}
+.speech{display:flex;gap:14px;align-items:flex-start}
+.speech svg{flex:none}
+#out{min-width:0;white-space:pre-wrap;max-width:65ch;border-left:2px solid #7cff6b55;padding-left:12px}
+.note{font-size:13px;color:var(--muted);margin-top:12px}
+.err{color:#ff8a80}
+aside h3{font-family:var(--display);font-weight:400;font-size:15px;margin:0 0 10px;color:var(--accent)}
+.rel{list-style:none;padding:0;margin:0;display:grid;gap:8px}
+.rel button{background:none;border:none;padding:0;text-align:left;color:var(--link);text-decoration:underline;font-size:15px}
+.counter{margin-top:18px;font-family:"Courier New",monospace;font-size:13px;color:var(--muted)}
+.counter b{background:#000;color:var(--glow);padding:1px 6px;letter-spacing:.15em;font-variant-numeric:tabular-nums;border:1px solid var(--bevel)}
+footer{text-align:center;font-size:12px;color:var(--muted);padding-bottom:24px}
+.ufo{animation:hover 3s ease-in-out infinite}@keyframes hover{50%{transform:translateY(-4px)}}
+.blink{animation:b 1s steps(1) infinite;color:var(--glow)}@keyframes b{50%{opacity:0}}
+@media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+</style>
+
+</head>
+<body>
+<header>
+  <div class="wrap">
+    <div class="logo">
+      <svg class="ufo" width="64" height="64" viewBox="0 0 64 64" aria-hidden="true">
+        <!-- antennae -->
+        <path d="M24 12l-4-8M40 12l4-8" stroke="#7cff6b" stroke-width="2.5" stroke-linecap="round"/>
+        <circle cx="20" cy="4" r="3" fill="#b38cff"/><circle cx="44" cy="4" r="3" fill="#b38cff"/>
+        <!-- big head -->
+        <path d="M32 10c13 0 18 9 18 18 0 9-9 17-18 21-9-4-18-12-18-21 0-9 5-18 18-18z" fill="#7cff6b"/>
+        <!-- eyes, one with a monocle -->
+        <ellipse cx="24" cy="29" rx="6" ry="4" transform="rotate(20 24 29)" fill="#07090f"/>
+        <ellipse cx="40" cy="29" rx="6" ry="4" transform="rotate(-20 40 29)" fill="#07090f"/>
+        <circle cx="40" cy="29" r="7.5" fill="none" stroke="#e6c35c" stroke-width="1.8"/>
+        <path d="M47 31q3 6 1 14" stroke="#e6c35c" stroke-width="1" fill="none"/>
+        <!-- tiny mouth -->
+        <path d="M29 40q3 2 6 0" stroke="#07090f" stroke-width="1.6" fill="none" stroke-linecap="round"/>
+        <!-- tux collar + bow tie -->
+        <path d="M18 54l14-5 14 5v10H18z" fill="#1a1a24"/>
+        <path d="M27 51l5 7 5-7z" fill="#f2f2f2"/>
+        <path d="M27 53l5 2.5-5 2.5zM37 53l-5 2.5 5 2.5z" fill="#b38cff"/>
+      </svg>
+      <h1>Ask Alien <span>Butler</span></h1>
+    </div>
+    <div class="tag">Serving Earthlings since 1998</div>
+  </div>
+</header>
+
+<main>
+  <div class="wrap">
+    <section>
+      <nav class="tabs" aria-hidden="true"><span class="on">Ask</span><span>Galaxy Web</span><span>Space Weather</span><span>Star Charts</span><span>Abductions</span></nav>
+      <div class="card">
+        <form class="askbox" id="form">
+          <label for="q">How may I serve you, Earthling?</label>
+          <div class="row">
+            <input id="q" type="text" autocomplete="off" placeholder="Why is the sky blue?">
+            <button id="go" type="submit">Beam it</button>
+          </div>
+          <div class="chips">Try:
+            <button type="button" class="chip">How do bike gears work?</button>
+            <button type="button" class="chip">Is there life on Mars?</button>
+            <button type="button" class="chip">Best sci-fi horror movies?</button>
+          </div>
+        </form>
+
+        <div class="answer" aria-live="polite">
+          <p class="qline" id="qlabel">Example transmission</p>
+          <h2 id="qtitle">Why does an alien wear a tuxedo?</h2>
+          <div class="speech">
+            <svg width="40" height="40" viewBox="0 0 64 64" aria-hidden="true"><path d="M32 10c13 0 18 9 18 18 0 9-9 17-18 21-9-4-18-12-18-21 0-9 5-18 18-18z" fill="#7cff6b"/><ellipse cx="24" cy="29" rx="6" ry="4" transform="rotate(20 24 29)" fill="#07090f"/><ellipse cx="40" cy="29" rx="6" ry="4" transform="rotate(-20 40 29)" fill="#07090f"/><circle cx="40" cy="29" r="7.5" fill="none" stroke="#e6c35c" stroke-width="1.8"/><path d="M27 51l5 7 5-7z" fill="#f2f2f2"/></svg>
+            <div id="out">Your planet's dress code was the first thing I studied. I chose formal. It seemed safest.
+
+Ask me anything in a full sentence. I have read your entire internet and I am at your service.</div>
+          </div>
+          <p class="note" id="note">Answers are AI-generated. Double-check anything important.</p>
+        </div>
+      </div>
+    </section>
+
+    <aside class="card">
+      <h3>Other Earthlings asked</h3>
+      <ul class="rel" id="rel">
+        <li><button type="button">How far away is the nearest star?</button></li>
+        <li><button type="button">What was the first website?</button></li>
+        <li><button type="button">Why do cats knock things off tables?</button></li>
+      </ul>
+      <div class="counter">Earthlings served: <b id="count">0048213</b></div>
+    </aside>
+  </div>
+</main>
+<footer>Best viewed in 800&times;600 on any planet &middot; <span class="blink">NEW!</span> Now with answers</footer>
+
+<script>
+const $=id=>document.getElementById(id);
+let busy=false;
+function setRelated(list){
+  const ul=$("rel"); ul.innerHTML="";
+  list.forEach(t=>{const li=document.createElement("li");const b=document.createElement("button");b.type="button";b.textContent=t;b.onclick=()=>ask(t);li.appendChild(b);ul.appendChild(li);});
+}
+async function ask(q){
+  q=(q||"").trim(); if(!q||busy) return;
+  if(q.length>300){ q=q.slice(0,300); }
+  $("q").value=q; $("qlabel").textContent="You asked"; $("qtitle").textContent=q;
+  const out=$("out"); out.classList.remove("err");
+  busy=true; $("go").disabled=true; out.textContent="Receiving transmission from the mothership...";
+  try{
+    const r=await fetch("/api/ask",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({question:q})});
+    const data=await r.json().catch(()=>({}));
+    if(!r.ok) throw new Error(data.error||"Transmission lost. Try asking again.");
+    out.textContent=data.answer;
+    if(data.related&&data.related.length) setRelated(data.related);
+    const c=$("count"); c.textContent=String(+c.textContent+1).padStart(7,"0");
+  }catch(e){
+    out.classList.add("err"); out.textContent=e.message||"Transmission lost. Try asking again.";
+  }finally{ busy=false; $("go").disabled=false; }
+}
+$("form").addEventListener("submit",e=>{e.preventDefault();ask($("q").value);});
+document.querySelectorAll(".chip,#rel button").forEach(b=>b.addEventListener("click",()=>ask(b.textContent)));
+</script>
+
+</body>
+</html>
