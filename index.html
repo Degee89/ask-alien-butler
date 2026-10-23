@@ -58,6 +58,41 @@ aside h3{font-family:var(--display);font-weight:400;font-size:15px;margin:0 0 10
 .rel button{background:none;border:none;padding:0;text-align:left;color:var(--link);text-decoration:underline;font-size:15px}
 .counter{margin-top:18px;font-family:"Courier New",monospace;font-size:13px;color:var(--muted)}
 .counter b{background:#000;color:var(--glow);padding:1px 6px;letter-spacing:.15em;font-variant-numeric:tabular-nums;border:1px solid var(--bevel)}
+textarea#stext{width:100%;font:inherit;padding:10px 12px;border:2px inset var(--bevel);background:#04060a;color:var(--glow);border-radius:2px;font-family:"Courier New",monospace;resize:vertical}
+textarea#stext:focus{outline:3px solid var(--accent);outline-offset:1px}
+.srow{display:flex;justify-content:space-between;align-items:center;gap:8px;margin-top:8px}
+#sgo{font-family:var(--display);padding:8px 18px;background:var(--accent);color:#1a0d33;border:2px outset #d8c2ff;border-radius:3px}
+#sgo:disabled{opacity:.6;cursor:wait}
+.small{font-size:13px;color:var(--muted)}
+.small.err{color:#ff8a80}
+.wallhead{font-family:var(--display);font-weight:400;font-size:16px;color:var(--accent);margin:22px 0 10px}
+.wall{list-style:none;margin:0;padding:0;display:grid;gap:12px}
+.wall li.s{border:1px dashed var(--bevel);border-radius:4px;padding:12px 14px;background:#0c1220}
+.wall .txt{font-family:"Courier New",monospace;color:var(--ink);margin:0 0 6px;overflow-wrap:anywhere}
+.wall .rep{margin:0;color:var(--glow);font-size:14px}
+.wall .meta{display:flex;gap:12px;align-items:center;margin-top:8px;font-size:12px;color:var(--muted)}
+.wall .meta button{background:none;border:none;padding:0;color:var(--muted);text-decoration:underline;font-size:12px}
+.crisis{border:2px solid var(--accent);border-radius:4px;padding:12px 14px;margin-top:12px;background:#1a1330}
+.crisis p{margin:0 0 8px}
+#tsub{width:100%;font:inherit;padding:8px 12px;margin-bottom:8px;border:2px inset var(--bevel);background:#04060a;color:var(--ink);border-radius:2px}
+textarea.btext{width:100%;font:inherit;font-size:15px;padding:10px 12px;border:2px inset var(--bevel);background:#04060a;color:var(--ink);border-radius:2px;resize:vertical}
+#tsub:focus,textarea.btext:focus{outline:3px solid var(--accent);outline-offset:1px}
+.bbtn{font-family:var(--display);padding:8px 18px;background:var(--link);color:#03202f;border:2px outset #c9ecff;border-radius:3px}
+.bbtn:disabled{opacity:.6;cursor:wait}
+.linkbtn{background:none;border:none;padding:0;color:var(--link);text-decoration:underline;font-size:14px;margin-bottom:12px}
+.thr{cursor:pointer}
+.thr:hover{border-color:var(--link)}
+.phead{font-size:12px;color:var(--muted);display:flex;flex-wrap:wrap;gap:4px 10px;align-items:baseline;margin-bottom:6px}
+.phead .anon{color:var(--glow);font-weight:700}
+.phead .subj{color:var(--accent);font-weight:700;font-size:14px}
+.phead .pid{font-family:"Courier New",monospace}
+.phead button{background:none;border:none;padding:0;color:var(--muted);text-decoration:underline;font-size:12px}
+.pbody{margin:0;overflow-wrap:anywhere;white-space:pre-wrap}
+.pbody .gt{color:#9be37a}
+.posts{display:grid;gap:10px;margin-bottom:16px}
+.post{border:1px solid var(--bevel);border-radius:4px;padding:10px 14px;background:#0c1220}
+.post.op{border-color:var(--accent)}
+.replies{font-size:12px;color:var(--link);margin-top:6px}
 footer{text-align:center;font-size:12px;color:var(--muted);padding-bottom:24px}
 .ufo{animation:hover 3s ease-in-out infinite}@keyframes hover{50%{transform:translateY(-4px)}}
 .blink{animation:b 1s steps(1) infinite;color:var(--glow)}@keyframes b{50%{opacity:0}}
@@ -102,8 +137,10 @@ footer{text-align:center;font-size:12px;color:var(--muted);padding-bottom:24px}
         <button type="button" role="tab" data-mode="movies" aria-selected="false">Movie Night</button>
         <button type="button" role="tab" data-mode="stars" aria-selected="false">Star Signs</button>
         <button type="button" role="tab" data-mode="abduct" aria-selected="false">Abductions</button>
+        <button type="button" role="tab" data-mode="secrets" aria-selected="false">Secrets</button>
+        <button type="button" role="tab" data-mode="board" aria-selected="false">Board</button>
       </nav>
-      <div class="card">
+      <div class="card" id="askView">
         <form class="askbox" id="form">
           <label for="q" id="qprompt">How may I serve you, Earthling?</label>
           <div class="row">
@@ -127,6 +164,51 @@ footer{text-align:center;font-size:12px;color:var(--muted);padding-bottom:24px}
 Ask me anything in a full sentence. I have read your entire internet and I am at your service.</div>
           </div>
           <p class="note" id="note">Answers are AI-generated. Double-check anything important.</p>
+        </div>
+      </div>
+
+      <div class="card" id="secretsView" hidden>
+        <form class="askbox" id="sform">
+          <label for="stext">Tell the Butler a secret. No names. He tells the galaxy, but never who said it.</label>
+          <textarea id="stext" maxlength="280" rows="3" placeholder="I still sleep with a night light."></textarea>
+          <div class="srow">
+            <span id="scount" class="small">0 / 280</span>
+            <button id="sgo" type="submit">Confess</button>
+          </div>
+          <p id="smsg" class="small" aria-live="polite">Posts are anonymous and checked before they appear. Leave out names, contact info, and anything you would not want strangers to read.</p>
+        </form>
+        <div id="crisis" class="crisis" hidden>
+          <p id="crisisText"></p>
+          <p>In the US, you can call or text <b>988</b> any time to reach the Suicide and Crisis Lifeline. If you are in danger right now, call <b>911</b>.</p>
+        </div>
+        <h3 class="wallhead">The Wall of Secrets</h3>
+        <ul id="wall" class="wall"><li class="small">Loading secrets from the mothership...</li></ul>
+      </div>
+      <div class="card" id="boardView" hidden>
+        <div id="bList">
+          <form class="askbox" id="tform">
+            <label for="tsub">Start a thread. Everyone is Anonymous here.</label>
+            <input id="tsub" type="text" maxlength="80" autocomplete="off" placeholder="Subject (optional)">
+            <textarea id="ttext" class="btext" maxlength="1000" rows="4" placeholder="Best sci-fi horror movie of all time? Wrong answers only."></textarea>
+            <div class="srow"><span class="small">Start a line with &gt; for greentext.</span><button id="tgo" type="submit" class="bbtn">New thread</button></div>
+            <p id="tmsg" class="small" aria-live="polite">Text only. Posts are checked before they appear. No names, contact info, or personal details about anyone.</p>
+          </form>
+          <h3 class="wallhead">Threads</h3>
+          <ul id="threads" class="wall"><li class="small">Loading the board...</li></ul>
+        </div>
+        <div id="bThread" hidden>
+          <button type="button" id="bback" class="linkbtn">&larr; Back to all threads</button>
+          <div id="posts" class="posts"></div>
+          <form class="askbox" id="rform">
+            <label for="rtext">Reply to this thread</label>
+            <textarea id="rtext" class="btext" maxlength="1000" rows="3" placeholder="Write a reply..."></textarea>
+            <div class="srow"><span class="small" id="rcount">0 / 1000</span><button id="rgo" type="submit" class="bbtn">Post reply</button></div>
+            <p id="rmsg" class="small" aria-live="polite"></p>
+          </form>
+        </div>
+        <div id="bcrisis" class="crisis" hidden>
+          <p id="bcrisisText"></p>
+          <p>In the US, you can call or text <b>988</b> any time to reach the Suicide and Crisis Lifeline. If you are in danger right now, call <b>911</b>.</p>
         </div>
       </div>
     </section>
@@ -160,8 +242,12 @@ const MODES={
     chips:["Why I avoid Texas in August","My first taco","The time I lost my monocle"]}
 };
 function setMode(m){
-  if(!MODES[m]) return; mode=m; const c=MODES[m];
+  if(!MODES[m]&&m!=="secrets"&&m!=="board") return;
   document.querySelectorAll("nav.tabs button").forEach(b=>b.setAttribute("aria-selected",b.dataset.mode===m?"true":"false"));
+  $("askView").hidden=!MODES[m]; $("secretsView").hidden=m!=="secrets"; $("boardView").hidden=m!=="board";
+  if(m==="secrets"){ loadSecrets(); $("stext").focus(); return; }
+  if(m==="board"){ showList(); return; }
+  mode=m; const c=MODES[m];
   $("qprompt").textContent=c.label; $("q").placeholder=c.ph; $("go").textContent=c.btn; $("q").value="";
   const box=$("chips"); box.textContent="Try: ";
   c.chips.forEach(t=>{const b=document.createElement("button");b.type="button";b.className="chip";b.textContent=t;b.onclick=()=>ask(t);box.appendChild(b);});
@@ -191,6 +277,134 @@ async function ask(q){
 $("form").addEventListener("submit",e=>{e.preventDefault();ask($("q").value);});
 document.querySelectorAll("nav.tabs button").forEach(b=>b.addEventListener("click",()=>setMode(b.dataset.mode)));
 document.querySelectorAll(".chip,#rel button").forEach(b=>b.addEventListener("click",()=>ask(b.textContent)));
+
+// ---- Secrets wall ----
+let ADMIN=null;
+try{ const u=new URL(location.href); const k=u.searchParams.get("admin");
+  if(k){ localStorage.setItem("butlerAdmin",k); u.searchParams.delete("admin"); history.replaceState(null,"",u.pathname); }
+  ADMIN=localStorage.getItem("butlerAdmin"); }catch(e){}
+function ago(t){const m=Math.round((Date.now()-t)/60000); if(m<1)return"just now"; if(m<60)return m+" min ago"; const h=Math.round(m/60); if(h<24)return h+" hr ago"; return Math.round(h/24)+" days ago";}
+function renderWall(list){
+  const ul=$("wall"); ul.innerHTML="";
+  if(!list||!list.length){const li=document.createElement("li");li.className="small";li.textContent="No secrets yet. Be the first to confess.";ul.appendChild(li);return;}
+  list.forEach(s=>{
+    const li=document.createElement("li"); li.className="s";
+    const p=document.createElement("p"); p.className="txt"; p.textContent="\u201C"+s.text+"\u201D";
+    const r=document.createElement("p"); r.className="rep"; r.textContent="Butler: "+s.reply;
+    const meta=document.createElement("div"); meta.className="meta";
+    const when=document.createElement("span"); when.textContent=ago(s.t);
+    const rep=document.createElement("button"); rep.type="button"; rep.textContent="Report";
+    rep.onclick=async()=>{ rep.disabled=true; rep.textContent="Reported"; await secretsPost({action:"report",id:s.id}); };
+    meta.append(when,rep);
+    if(ADMIN){ const del=document.createElement("button"); del.type="button"; del.textContent="Delete";
+      del.onclick=async()=>{ const d=await secretsPost({action:"delete",id:s.id,key:ADMIN}); if(d&&d.secrets) renderWall(d.secrets); else if(d&&d.error) setSmsg(d.error,true); };
+      meta.appendChild(del); }
+    li.append(p,r,meta); ul.appendChild(li);
+  });
+}
+function setSmsg(t,bad){ const m=$("smsg"); m.textContent=t; m.classList.toggle("err",!!bad); }
+async function secretsPost(body){
+  try{ const r=await fetch("/api/secrets",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify(body)});
+    const d=await r.json().catch(()=>({})); if(!r.ok) d.error=d.error||"Transmission lost. Try again."; return d; }
+  catch(e){ return {error:"Transmission lost. Try again."}; }
+}
+async function loadSecrets(){
+  try{ const r=await fetch("/api/secrets"); const d=await r.json(); renderWall(d.secrets); }
+  catch(e){ $("wall").innerHTML='<li class="small">Could not reach the wall. Try again soon.</li>'; }
+}
+$("stext").addEventListener("input",()=>{$("scount").textContent=$("stext").value.length+" / 280";});
+$("sform").addEventListener("submit",async e=>{
+  e.preventDefault(); const text=$("stext").value.trim(); if(!text) return;
+  $("sgo").disabled=true; $("crisis").hidden=true; setSmsg("The Butler is reading your secret...");
+  const d=await secretsPost({text});
+  $("sgo").disabled=false;
+  if(d.crisis){ $("crisisText").textContent=d.message; $("crisis").hidden=false; setSmsg("This one was not posted."); return; }
+  if(d.error){ setSmsg(d.error,true); return; }
+  $("stext").value=""; $("scount").textContent="0 / 280"; setSmsg("Posted. Your secret is safe with the entire galaxy.");
+  renderWall(d.secrets);
+});
+
+// ---- Message board ----
+let curThread=null;
+function bodyEl(text){
+  const p=document.createElement("p"); p.className="pbody";
+  text.split("\n").forEach((line,i)=>{ if(i) p.appendChild(document.createTextNode("\n"));
+    if(/^>(?!>)/.test(line)){ const sp=document.createElement("span"); sp.className="gt"; sp.textContent=line; p.appendChild(sp); }
+    else p.appendChild(document.createTextNode(line)); });
+  return p;
+}
+function head(post,threadId,isOp){
+  const h=document.createElement("div"); h.className="phead";
+  if(post.subject){ const sj=document.createElement("span"); sj.className="subj"; sj.textContent=post.subject; h.appendChild(sj); }
+  const a=document.createElement("span"); a.className="anon"; a.textContent="Anonymous"; h.appendChild(a);
+  const id=document.createElement("span"); id.className="pid"; id.textContent="ID:"+post.poster; h.appendChild(id);
+  const t=document.createElement("span"); t.textContent=ago(post.t); h.appendChild(t);
+  const no=document.createElement("span"); no.className="pid"; no.textContent="No."+post.no; h.appendChild(no);
+  if(threadId){
+    const rep=document.createElement("button"); rep.type="button"; rep.textContent="Report";
+    rep.onclick=async e=>{ e.stopPropagation(); rep.disabled=true; rep.textContent="Reported"; await boardPost({action:"report",thread:threadId,no:post.no}); };
+    h.appendChild(rep);
+    if(ADMIN){ const del=document.createElement("button"); del.type="button"; del.textContent=isOp?"Delete thread":"Delete";
+      del.onclick=async e=>{ e.stopPropagation(); const d=await boardPost({action:"delete",thread:threadId,no:isOp?null:post.no,key:ADMIN});
+        if(d.error){ alertMsg(d.error); return; } if(d.deletedThread) showList(); else openThread(threadId); };
+      h.appendChild(del); }
+  }
+  return h;
+}
+function alertMsg(t){ const m=$("bThread").hidden?$("tmsg"):$("rmsg"); m.textContent=t; m.classList.add("err"); }
+async function boardPost(body){
+  try{ const r=await fetch("/api/board",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify(body)});
+    const d=await r.json().catch(()=>({})); if(!r.ok) d.error=d.error||"Transmission lost. Try again."; return d; }
+  catch(e){ return {error:"Transmission lost. Try again."}; }
+}
+async function showList(){
+  curThread=null; $("bList").hidden=false; $("bThread").hidden=true; $("bcrisis").hidden=true;
+  const ul=$("threads");
+  try{
+    const d=await (await fetch("/api/board")).json(); ul.innerHTML="";
+    if(!d.threads||!d.threads.length){ ul.innerHTML='<li class="small">No threads yet. Start the first one.</li>'; return; }
+    d.threads.forEach(th=>{
+      const li=document.createElement("li"); li.className="s thr"; li.tabIndex=0;
+      li.appendChild(head(th,null,true)); li.appendChild(bodyEl(th.text.length>=200?th.text+"...":th.text));
+      const r=document.createElement("div"); r.className="replies"; r.textContent=th.replies+(th.replies===1?" reply":" replies")+" \u00B7 Open thread"; li.appendChild(r);
+      li.onclick=()=>openThread(th.id); li.onkeydown=e=>{ if(e.key==="Enter") openThread(th.id); };
+      ul.appendChild(li);
+    });
+  }catch(e){ ul.innerHTML='<li class="small">Could not reach the board. Try again soon.</li>'; }
+}
+async function openThread(id){
+  curThread=id; $("bList").hidden=true; $("bThread").hidden=false; $("bcrisis").hidden=true;
+  const box=$("posts"); box.innerHTML='<p class="small">Loading thread...</p>';
+  try{
+    const r=await fetch("/api/board?thread="+encodeURIComponent(id)); const d=await r.json();
+    if(!r.ok){ box.innerHTML=""; const p=document.createElement("p"); p.className="small"; p.textContent=d.error||"That thread is gone."; box.appendChild(p); return; }
+    box.innerHTML="";
+    [d.op,...d.replies].forEach((post,i)=>{ const div=document.createElement("div"); div.className="post"+(i?"":" op");
+      div.appendChild(head(post,id,i===0)); div.appendChild(bodyEl(post.text)); box.appendChild(div); });
+  }catch(e){ box.innerHTML='<p class="small">Could not load this thread.</p>'; }
+}
+function handleResult(d,msgEl){
+  if(d.crisis){ $("bcrisisText").textContent=d.message; $("bcrisis").hidden=false; msgEl.textContent="This post was not published."; msgEl.classList.remove("err"); return false; }
+  if(d.error){ msgEl.textContent=d.error; msgEl.classList.add("err"); return false; }
+  msgEl.classList.remove("err"); return true;
+}
+$("bback").onclick=showList;
+$("rtext").addEventListener("input",()=>{$("rcount").textContent=$("rtext").value.length+" / 1000";});
+$("tform").addEventListener("submit",async e=>{
+  e.preventDefault(); const text=$("ttext").value.trim(); if(!text) return;
+  $("tgo").disabled=true; $("tmsg").textContent="Checking your post..."; $("tmsg").classList.remove("err");
+  const d=await boardPost({action:"thread",subject:$("tsub").value.trim(),text}); $("tgo").disabled=false;
+  if(!handleResult(d,$("tmsg"))) return;
+  $("tsub").value=""; $("ttext").value=""; $("tmsg").textContent="Thread posted."; openThread(d.id);
+});
+$("rform").addEventListener("submit",async e=>{
+  e.preventDefault(); const text=$("rtext").value.trim(); if(!text||!curThread) return;
+  $("rgo").disabled=true; $("rmsg").textContent="Checking your reply..."; $("rmsg").classList.remove("err");
+  const d=await boardPost({action:"reply",thread:curThread,text}); $("rgo").disabled=false;
+  if(!handleResult(d,$("rmsg"))) return;
+  $("rtext").value=""; $("rcount").textContent="0 / 1000"; $("rmsg").textContent="Reply posted."; openThread(curThread);
+});
+
 fetch("/api/ask").then(r=>r.json()).then(d=>showCount(d.count)).catch(()=>{});
 </script>
 

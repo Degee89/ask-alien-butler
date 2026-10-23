@@ -20,3 +20,15 @@ Optional: buy a domain and connect it under Domain management in Netlify.
 - Never put the API key in `index.html`. Anyone could copy it.
 - Each question costs a fraction of a cent. The spend limit protects you if the site gets busy.
 - To change the model, add a `MODEL` environment variable.
+
+## Secrets wall
+- Visitors post anonymous secrets on the Secrets tab. Claude checks each one before it posts.
+- Three reports hides a secret automatically.
+- To delete secrets yourself, add an environment variable `ADMIN_KEY` in Netlify with a long password only you know.
+  Then visit `https://alienbutler.netlify.app/?admin=YOURPASSWORD` once on your device. Delete buttons appear on the wall.
+
+## Message board
+- The Board tab is an anonymous, text-only forum. Each poster gets a short ID per thread. Lines starting with > show as greentext.
+- Every thread and reply is checked by Claude before it posts. Three reports hides a post.
+- Keeps the 50 most recently active threads. Each visitor can post 5 times every 10 minutes.
+- With your admin key set (see Secrets wall), Delete buttons also show on the board.
