@@ -26,8 +26,10 @@ header .wrap{display:flex;align-items:center;gap:16px;padding-block:18px;flex-wr
 .logo h1 span{color:var(--accent);text-shadow:0 0 10px #b38cff88}
 .tag{font-size:13px;color:var(--muted);margin-left:auto}
 nav.tabs{display:flex;gap:4px;flex-wrap:wrap;margin-top:-1px}
-nav.tabs span{font-size:13px;padding:4px 12px;background:var(--panel);border:1px solid var(--bevel);border-bottom:none;border-radius:6px 6px 0 0;color:var(--muted)}
-nav.tabs span.on{color:var(--glow);font-weight:700}
+nav.tabs button{font-size:13px;padding:4px 12px;background:var(--panel);border:1px solid var(--bevel);border-bottom:none;border-radius:6px 6px 0 0;color:var(--muted)}
+nav.tabs button:hover{color:var(--ink)}
+nav.tabs button[aria-selected="true"]{color:var(--glow);font-weight:700;background:#16213a}
+nav.tabs button:focus-visible{outline:3px solid var(--link);outline-offset:2px}
 main .wrap{display:grid;grid-template-columns:minmax(0,1fr) 260px;gap:20px;padding-block:20px 40px}
 @media (max-width:760px){main .wrap{grid-template-columns:minmax(0,1fr)}}
 .card{background:var(--panel);border:2px solid var(--bevel);border-radius:4px;padding:18px;box-shadow:inset 1px 1px 0 #ffffff14}
@@ -94,15 +96,21 @@ footer{text-align:center;font-size:12px;color:var(--muted);padding-bottom:24px}
 <main>
   <div class="wrap">
     <section>
-      <nav class="tabs" aria-hidden="true"><span class="on">Ask</span><span>Galaxy Web</span><span>Space Weather</span><span>Star Charts</span><span>Abductions</span></nav>
+      <nav class="tabs" role="tablist" aria-label="Butler services">
+        <button type="button" role="tab" data-mode="ask" aria-selected="true">Ask</button>
+        <button type="button" role="tab" data-mode="space" aria-selected="false">Space Facts</button>
+        <button type="button" role="tab" data-mode="movies" aria-selected="false">Movie Night</button>
+        <button type="button" role="tab" data-mode="stars" aria-selected="false">Star Signs</button>
+        <button type="button" role="tab" data-mode="abduct" aria-selected="false">Abductions</button>
+      </nav>
       <div class="card">
         <form class="askbox" id="form">
-          <label for="q">How may I serve you, Earthling?</label>
+          <label for="q" id="qprompt">How may I serve you, Earthling?</label>
           <div class="row">
             <input id="q" type="text" autocomplete="off" placeholder="Why is the sky blue?">
             <button id="go" type="submit">Beam it</button>
           </div>
-          <div class="chips">Try:
+          <div class="chips" id="chips">Try:
             <button type="button" class="chip">How do bike gears work?</button>
             <button type="button" class="chip">Is there life on Mars?</button>
             <button type="button" class="chip">Best sci-fi horror movies?</button>
@@ -130,7 +138,7 @@ Ask me anything in a full sentence. I have read your entire internet and I am at
         <li><button type="button">What was the first website?</button></li>
         <li><button type="button">Why do cats knock things off tables?</button></li>
       </ul>
-      <div class="counter">Earthlings served: <b id="count">0048213</b></div>
+      <div class="counter">Earthlings served: <b id="count">-------</b></div>
     </aside>
   </div>
 </main>
@@ -138,30 +146,52 @@ Ask me anything in a full sentence. I have read your entire internet and I am at
 
 <script>
 const $=id=>document.getElementById(id);
-let busy=false;
+let busy=false, mode="ask";
+const MODES={
+  ask:{label:"How may I serve you, Earthling?",ph:"Why is the sky blue?",btn:"Beam it",
+    chips:["How do bike gears work?","Is there life on Mars?","Who invented the internet?"]},
+  space:{label:"Ask me about the cosmos. I have been there.",ph:"How big is the Milky Way?",btn:"Beam it",
+    chips:["What is a black hole?","How hot is the Sun?","Could humans live on the Moon?"]},
+  movies:{label:"What are you in the mood to watch tonight?",ph:"Sci-fi horror like Alien",btn:"Find films",
+    chips:["Sci-fi horror classics","Scary but not gory","Space movies for a family night"]},
+  stars:{label:"Tell me your star sign. I will consult the actual stars.",ph:"Scorpio",btn:"Read stars",
+    chips:["Leo","Capricorn","Pisces"]},
+  abduct:{label:"Name a topic. I will tell you a true tale from my travels. (It is not true.)",ph:"The time I met a cow",btn:"Tell me",
+    chips:["Why I avoid Texas in August","My first taco","The time I lost my monocle"]}
+};
+function setMode(m){
+  if(!MODES[m]) return; mode=m; const c=MODES[m];
+  document.querySelectorAll("nav.tabs button").forEach(b=>b.setAttribute("aria-selected",b.dataset.mode===m?"true":"false"));
+  $("qprompt").textContent=c.label; $("q").placeholder=c.ph; $("go").textContent=c.btn; $("q").value="";
+  const box=$("chips"); box.textContent="Try: ";
+  c.chips.forEach(t=>{const b=document.createElement("button");b.type="button";b.className="chip";b.textContent=t;b.onclick=()=>ask(t);box.appendChild(b);});
+  $("q").focus();
+}
+function showCount(n){ if(typeof n==="number") $("count").textContent=String(n).padStart(7,"0"); }
 function setRelated(list){
   const ul=$("rel"); ul.innerHTML="";
   list.forEach(t=>{const li=document.createElement("li");const b=document.createElement("button");b.type="button";b.textContent=t;b.onclick=()=>ask(t);li.appendChild(b);ul.appendChild(li);});
 }
 async function ask(q){
-  q=(q||"").trim(); if(!q||busy) return;
-  if(q.length>300){ q=q.slice(0,300); }
+  q=(q||"").trim().slice(0,300); if(!q||busy) return;
   $("q").value=q; $("qlabel").textContent="You asked"; $("qtitle").textContent=q;
   const out=$("out"); out.classList.remove("err");
   busy=true; $("go").disabled=true; out.textContent="Receiving transmission from the mothership...";
   try{
-    const r=await fetch("/api/ask",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({question:q})});
+    const r=await fetch("/api/ask",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({question:q,mode})});
     const data=await r.json().catch(()=>({}));
     if(!r.ok) throw new Error(data.error||"Transmission lost. Try asking again.");
     out.textContent=data.answer;
     if(data.related&&data.related.length) setRelated(data.related);
-    const c=$("count"); c.textContent=String(+c.textContent+1).padStart(7,"0");
+    showCount(data.count);
   }catch(e){
     out.classList.add("err"); out.textContent=e.message||"Transmission lost. Try asking again.";
   }finally{ busy=false; $("go").disabled=false; }
 }
 $("form").addEventListener("submit",e=>{e.preventDefault();ask($("q").value);});
+document.querySelectorAll("nav.tabs button").forEach(b=>b.addEventListener("click",()=>setMode(b.dataset.mode)));
 document.querySelectorAll(".chip,#rel button").forEach(b=>b.addEventListener("click",()=>ask(b.textContent)));
+fetch("/api/ask").then(r=>r.json()).then(d=>showCount(d.count)).catch(()=>{});
 </script>
 
 </body>
